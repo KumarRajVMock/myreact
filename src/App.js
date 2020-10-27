@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { BrowserRouter as Router, Route, Switch} from 'react-router-dom'
+import "./App.css";
 
 import Navbar from './components/Navbar'
 import Welcome from './components/Welcome'
@@ -15,22 +16,22 @@ import Dashboard from './components/Dashboard'
 import ViewTask from './components/ViewTask.js'
 import SearchTask from './components/SearchTask.js'
 import Game from './components/Tictactoe';
-import {ProtectedRoute} from './ProtectedRoute';
+// import {ProtectedRoute} from './ProtectedRoute';
+import ProtectedRoute from './ProtectedRoute';
 
 class App extends Component {
-  
-  render() {    
+  render() {
     return (
       <Router>
         <div className="App">
           <Navbar />
-          <ProtectedRoute
-              isAllowed={localStorage.getItem("token")}
-              exact path="/self" 
-              component={Dashboard}
-            />
           <div className="container">
             <Switch>
+              <ProtectedRoute
+                isAllowed={localStorage.getItem("token")}
+                exact path="/self" 
+                component={Dashboard}
+              />
               <ProtectedRoute
                 isAllowed={localStorage.getItem("token")}
                 exact path="/admin" 

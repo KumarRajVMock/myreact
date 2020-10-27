@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { Component } from "react";
 import {Button, Col, Container, Form, Row , } from 'react-bootstrap';
+import Pusher from 'pusher-js';
 
 const api = axios.create({
     baseURL: 'http://localhost:8000/api/'
@@ -26,12 +27,19 @@ class Task extends Component {
     };
     
     handleStatus = (event) =>  {
+        
+        var pusher = new Pusher('891c7f6c06b720face3c', {cluster: 'ap2'});
+        var channel = pusher.subscribe('my-channel');
+        channel.bind('my-event', function(data) {
+            alert(JSON.stringify(data));
+        });
+        
         this.setState({
             status: event.target.value
         });
         
         api.post('/updatestatus', {
-            id:event.target.name, status:event.target.value}, {
+            id:this.props.task.id, status:event.target.value}, {
             headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
             }
@@ -59,6 +67,7 @@ class Task extends Component {
     
     handleTaskUpdate = (event) =>  {
         event.preventDefault();
+        console.log(event.target.name)
         const data = {
             id: event.target.name, 
             description: this.state.description, 
@@ -83,21 +92,7 @@ class Task extends Component {
         return (
 
             <tbody>
-                <tr
-                    style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    background: "silver",
-                    borderBottom: "1px solid rgb(225,225,225)",
-                    borderLeft: "1px solid rgb(225,225,225)",
-                    borderRight: "1px solid rgb(225,225,225)",
-                    borderTopLeftRadius: "10px",
-                    borderTopRightRadius: "10px",
-                    borderBottomLeftRadius: "10px",
-                    borderBottomRightRadius: "10px",
-                    }}
-                    onClick={this.onClickHandler}
-                    >
+                <tr className="tablerow" onClick={this.onClickHandler}>
                         <td style={{ paddingLeft: "10px",  paddingTop: "10px"  }}>{task.assignee}</td>
                         <td style={{ paddingTop: "10px"  }}>{task.title}</td>
                         <td style={{ paddingTop: "10px", }}>

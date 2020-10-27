@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Button, Col, Container, Form, Row,Card } from 'react-bootstrap';
 import axios from 'axios';
+import Pagination from 'react-js-pagination';
 
 const api = axios.create({
     baseURL: 'http://localhost:8000/api/'
@@ -17,12 +18,16 @@ class SearchTask extends Component {
             creator: '',
             due_date: '',
             search_val: [],
+            current_page: 0,
+            per_page: 0,
+            total: 0,
         }
         this.handleTitle = this.handleTitle.bind(this);
         this.handleAssignee = this.handleAssignee.bind(this);
         this.handleCreator = this.handleCreator.bind(this);
         this.handleDuedate = this.handleDuedate.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);         
+        this.handlepages = this.handlepages.bind(this);         
     }
     
     handleTitle = (event) => {
@@ -35,20 +40,17 @@ class SearchTask extends Component {
             assignee: event.target.value 
         });    
     };
-    
     handleCreator = (event) => {
         this.setState({
             creator: event.target.value 
         });    
     };
-    
     handleDuedate = (event) => {
         this.setState({
             due_date: event.target.value
         });    
     };
-    
-    handleSubmit = (event) => {       
+    handleSubmit = (event) =>{       
         event.preventDefault();
         
         let data = {
@@ -57,22 +59,48 @@ class SearchTask extends Component {
             creator: this.state.creator === "" ? undefined : this.state.creator,
             due_date: this.state.due_date === "" ? undefined : this.state.due_date,
         };
-        console.log(data)
-        api.post('/searchtask', data,{
+        api.post(`/searchtask?page=${1}`, data,{
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         })
         .then((res) => {
-            console.log(res.data);
             this.setState({
-                search_val: res.data
+                search_val: res.data.data,
+                current_page: res.data.current_page, 
+                per_page: res.data.per_page, 
+                total: res.data.total,
             })
         })        
         .catch((err) => {
             console.log(err.response);
         });
     };
+
+    handlepages = (pageNumber) => {
+        let data = {
+            title: this.state.title === "" ? undefined : this.state.title,
+            assignee: this.state.assignee === "" ? undefined : this.state.assignee,
+            creator: this.state.creator === "" ? undefined : this.state.creator,
+            due_date: this.state.due_date === "" ? undefined : this.state.due_date,
+        };
+        api.post(`/searchtask?page=${pageNumber}`, data,{
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        })
+        .then((res) => {
+            this.setState({
+                search_val: res.data.data,
+                current_page: res.data.current_page, 
+                per_page: res.data.per_page, 
+                total: res.data.total,
+            })
+        })        
+        .catch((err) => {
+            console.log(err.response);
+        });
+    }
     
     render() {
         return (
@@ -143,30 +171,8 @@ class SearchTask extends Component {
                     </Container>
                 </Card>
             </Container>         
-            <div
-                className="container"
-                style={{
-                backgroundColor: "white",
-                padding: "20px",
-                borderRadius: "10px",
-                marginTop: "30px",
-                }}
-            >
-                <div
-                    style={{
-                        paddingTop: "10px",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        background: "#00bfff",
-                        border: "1px solid grey",
-                        borderTopLeftRadius: "10px",
-                        borderTopRightRadius: "10px",
-                        borderBottomLeftRadius: "10px",
-                        borderBottomRightRadius: "10px",
-                        color: "black",
-                    }}
-                    >
+            <div className="container tablecontainer">
+                <div className="tablehead">
                     <h3 style={{ paddingLeft: "15px" }}>Title</h3>
                     <h3>Assignee</h3>
                     <h3>Assignor</h3>
@@ -175,6 +181,7 @@ class SearchTask extends Component {
                 {this.state.search_val.map((task) => {
                     return (
                         <div
+                            key={task.id}
                             style={{
                             padding: "5px",
                             display: "flex",
@@ -197,6 +204,18 @@ class SearchTask extends Component {
                         </div>
                     )
                 })}
+                <div className="mt-3">
+                    <Pagination 
+                        activePage={this.state.current_page}
+                        totalItemsCount={this.state.total}
+                        itemsCountPerPage={this.state.per_page}
+                        onChange={(pageNumber) => this.handlepages(pageNumber)}
+                        itemClass="page-item"
+                        linkClass="page-link"
+                        firstPageText="First"
+                        lastPageText="Last"
+                    />
+                </div>
             </div>
         </div>
         );

@@ -1,0 +1,28 @@
+.tablehead {
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #00bfff;
+    border: 1px solid grey;
+    border-radius: 10px;
+    color: black;
+}
+
+.tablecontainer {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 30px;
+}
+
+.tablerow {
+    padding: 5px;
+    display: flex;
+    justify-content: space-between;
+    background: silver;
+    border-bottom: 1px solid rgb(225,225,225);
+    border-left: 1px solid rgb(225,225,225);
+    border-right: 1px solid rgb(225,225,225);
+    border-radius: 10px;
+}

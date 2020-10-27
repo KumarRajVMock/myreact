@@ -48,30 +48,8 @@ class Normal extends Component {
     render() {
         return (
         <div>
-            <div
-                className="container"
-                style={{
-                backgroundColor: "white",
-                padding: "20px",
-                borderRadius: "10px",
-                marginTop: "30px",
-                }}
-            >
-                <div
-                    style={{
-                    paddingTop: "10px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    background: "#00bfff",
-                    border: "1px solid grey",
-                    borderTopLeftRadius: "10px",
-                    borderTopRightRadius: "10px",
-                    borderBottomLeftRadius: "10px",
-                    borderBottomRightRadius: "10px",
-                    color: "black",
-                    }}
-                    >
+            <div className="container tablecontainer">
+                <div className="tablehead">
                     <h3 style={{ paddingLeft: "15px" }}>Name</h3>
                     <h3>Email</h3>
                     <h3 style={{ paddingRight: "15px" }}>Role</h3>
@@ -80,22 +58,7 @@ class Normal extends Component {
                         {this.props.users.users.map((user) => {
                             return (
                                 <tbody>
-                                    <tr key={user.id}
-                                    style={{
-                                    padding: "5px",
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "right",
-                                    background: "silver",
-                                    borderBottom: "1px solid rgb(225,225,225)",
-                                    borderLeft: "1px solid rgb(225,225,225)",
-                                    borderRight: "1px solid rgb(225,225,225)",
-                                    borderTopLeftRadius: "10px",
-                                    borderTopRightRadius: "10px",
-                                    borderBottomLeftRadius: "10px",
-                                    borderBottomRightRadius: "10px",
-                                    }}
-                                    >
+                                    <tr key={user.id} className="tablerow">
                                         <td style={{ paddingLeft: "10px", paddingTop: "10px", }}>{user.name}</td>
                                         <td style={{ paddingTop: "10px"  }}>{user.email}</td>
                                         <td style={{ paddingTop: "10px", }}>{user.role}</td>

@@ -2,13 +2,13 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { Component } from "react";
 import { connect } from 'react-redux'
 import axios from "axios";
-// import {Col, sidenav, Card} from 'react-bootstrap';
+import {Toast} from 'react-bootstrap';
 import { getTasks } from "../redux/actions";
 
 import Highcharts from 'highcharts';
 import PieChart from 'highcharts-react-official';
 import HighchartsReact from "highcharts-react-official";
-
+import Pusher from 'pusher-js';
 
 const api = axios.create({
     baseURL: 'http://localhost:8000/api/'
@@ -19,10 +19,25 @@ class Dashboard extends Component {
         super(props)
         this.state = {
             cur_user: '',
+            toast: false,
+            toastHead: '',
+            toastBody: '',
         }
     }
     
     componentDidMount() {
+        // Pusher.logToConsole = true;
+        var pusher = new Pusher('891c7f6c06b720face3c', {cluster: 'ap2'} );        
+        var channel = pusher.subscribe("my-channel");
+        
+        channel.bind("updateStatus", (data) => {
+            if (data.assignee === JSON.parse(localStorage.getItem("user")).id)
+            {
+                this.setState({ toast: true, toastBody: data.message, toastHead: data.messageHead });
+            }
+            console.log(data.assignee, this.state.toastBody, this.state.toastHead, this.state.toast)
+        });
+        
         api.get('/profile',{
             headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -35,7 +50,7 @@ class Dashboard extends Component {
         .catch(err => {
             console.log(err)
         })
-
+        
         api.get('/viewtask',{
             headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -69,8 +84,13 @@ class Dashboard extends Component {
                         <h4>Notifications</h4>
                         <div className="card">
                             <div className="card-body">
+                                <Notifications 
+                                    toastBody={this.state.toastBody}
+                                    toastHead={this.state.toastHead}
+                                    toast={this.state.toast}
+                                />
                             </div>
-                    </div>
+                        </div>
                     </div>
                 </div>
                 <div className="row">
@@ -124,7 +144,7 @@ function Performance(props) {
             {
                 data: [
                     {y: countAss,  name: 'Assigned',},
-                    {y: countProg, name: 'In Progess',},
+                    {y: countProg, name: 'In Progress',},
                     {y: countComp, name: 'Completed',},
                 ],
             }
@@ -135,6 +155,20 @@ function Performance(props) {
             <PieChart highcharts={Highcharts} options={options} />
         </div>
     )
+}
+
+function Notifications(props){
+    return(
+        <div>
+            <Toast>
+                <Toast.Header>
+                    <strong className="mr-auto">props.toastHead</strong>
+                </Toast.Header>
+                <Toast.Body>props.toastBody</Toast.Body>
+            </Toast>
+        </div>
+    )
+    
 }
 
 function Overview(props) {
@@ -235,6 +269,7 @@ function Overview(props) {
         </div>
     )
 }
+
 const mapStatetoProps = (state, ownProps) => {
     return {
         tasks: state.tasks

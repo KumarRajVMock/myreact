@@ -66,30 +66,8 @@ class Admin extends Component {
 }
 function Users(props) {
     return (
-        <div
-            className="container"
-            style={{
-            backgroundColor: "white",
-            padding: "20px",
-            borderRadius: "10px",
-            marginTop: "30px",
-            }}
-        >
-            <div
-            style={{
-                paddingTop: "10px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                background: "#00bfff",
-                border: "1px solid grey",
-                borderTopLeftRadius: "10px",
-                borderTopRightRadius: "10px",
-                borderBottomLeftRadius: "10px",
-                borderBottomRightRadius: "10px",
-                color: "black",
-            }}
-            >
+        <div className="container tablecontainer">
+            <div className="tablehead">
             <h3 style={{ paddingLeft: "15px" }}>Name</h3>
             <h3>Email</h3>
             <h3>Role</h3>

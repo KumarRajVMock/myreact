@@ -39,27 +39,16 @@ class User extends Component {
         // const user = this.props.user;
         return (
             <tbody>
-                <tr
-                    style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "right",
-                    background: "silver",
-                    borderBottom: "1px solid rgb(225,225,225)",
-                    borderLeft: "1px solid rgb(225,225,225)",
-                    borderRight: "1px solid rgb(225,225,225)",
-                    borderTopLeftRadius: "10px",
-                    borderTopRightRadius: "10px",
-                    borderBottomLeftRadius: "10px",
-                    borderBottomRightRadius: "10px",
-                    }}
-                >
+                <tr className="tablerow">
                     <td style={{ paddingLeft: "10px", paddingTop: "10px", }}>{user.name}</td>
                     <td style={{ paddingTop: "10px"  }}>{user.email}</td>
                     <td style={{ paddingTop: "10px", }}>{user.role}</td>
+                    <td style={{ paddingTop: "10px", }}>
                     <Button variant="danger" onClick={this.handleDelete.bind(this, user.id)}>
                         Delete
                     </Button>
+                    </td>
+                    
                 </tr>
             </tbody>
         
