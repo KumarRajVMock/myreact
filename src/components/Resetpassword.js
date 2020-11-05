@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Button, Container, Form, } from 'react-bootstrap';
 import axios from 'axios';
-// import { Redirect } from "react-router-dom";
 
 const api = axios.create({
     baseURL: 'http://localhost:8000/api/'
@@ -24,9 +23,11 @@ class Resetpassword extends Component {
     
     handleSubmit = (event) => {
         event.preventDefault();
+        document.getElementById("myBtn").disabled = true;
         api.post('/resetpassword',{token: this.props.match.params.token, new_password: this.state.new_password})
         .then(() => {
             console.log('Data sent!');
+            document.getElementById("myBtn").disabled = false;
         })
         .catch(() => {
             console.log('Not sent');
@@ -49,7 +50,8 @@ class Resetpassword extends Component {
                         />
                         </Form.Group>
                         <Button 
-                            onClick = {this.handleSubmit} 
+                            onClick = {this.handleSubmit}
+                            id = "myBtn"
                             variant = "Secondary" 
                             type = "submit" 
                             style = {{color: "white", background: "cyan"}}

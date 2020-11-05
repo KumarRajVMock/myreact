@@ -12,12 +12,18 @@ export const logout = () => {
 };
 
 export const getUsers = (users) => {
-    console.log(users)
     return {
         type: "GETUSERS",
         payload: users,
     };
     
+};
+
+export const createUser = (user) => {
+    return {
+        type: "CREATEUSER",
+        payload: user,
+    };
 };
 
 export const deleteUser = (id) => {
@@ -38,5 +44,20 @@ export const createTask = (task) => {
     return {
         type: "CREATETASK",
         payload: task,
+    };
+};
+
+export const getNotes = (notes) => {
+    return {
+        type: "GETNOTES",
+        payload: notes,
+    };
+    
+};
+
+export const deleteNote = (id) => {
+    return {
+        type: "DELETENOTE",
+        payload: id,
     };
 };

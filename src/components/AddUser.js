@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Button, Col, Container, Form, Row,Card } from 'react-bootstrap';
 import axios from 'axios';
+import { connect } from 'react-redux'
+import { createUser } from "../redux/actions";
 
 const api = axios.create({
     baseURL: 'http://localhost:8000/api/'
@@ -25,13 +27,11 @@ class AddUser extends Component {
             email: event.target.value 
         });    
     };
-    
     handleFname = (event) => {
         this.setState({
             first_name: event.target.value 
         });    
     };
-    
     handleLname = (event) => {
         this.setState({
             last_name: event.target.value
@@ -40,18 +40,18 @@ class AddUser extends Component {
     
     handleSubmit = (event) => {       
         event.preventDefault();
-        
+        document.getElementById("myBtn").disabled = true;
+
         api.post('/adduser', {
             name: this.state.first_name + ' ' + this.state.last_name,email: this.state.email,},{
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-        })
-        
+        })        
         .then((res) => {
-            console.log(res.data);
-        })
-        
+            this.props.createUser(res.data.user);
+            document.getElementById("myBtn").disabled = false;
+        })        
         .catch((err) => {
             console.log(err.response);
             if (err.response === 401) {
@@ -106,7 +106,8 @@ class AddUser extends Component {
                                     </Form.Group>
                                 </Col>
                                 <Col md>
-                                    <Button 
+                                    <Button
+                                        id = "myBtn"
                                         onClick = {this.handleSubmit} 
                                         variant = "Secondary" 
                                         type = "submit" 
@@ -123,4 +124,5 @@ class AddUser extends Component {
         );
     }
 }
-export default AddUser;
+
+export default connect(null, { createUser })(AddUser);

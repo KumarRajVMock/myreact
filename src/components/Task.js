@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, { Component } from "react";
-import {Button, Col, Container, Form, Row , } from 'react-bootstrap';
-import Pusher from 'pusher-js';
+import {Button, Col, Container, Form, Row, } from 'react-bootstrap';
 
 const api = axios.create({
     baseURL: 'http://localhost:8000/api/'
@@ -22,18 +21,12 @@ class Task extends Component {
         this.handleTaskUpdate = this.handleTaskUpdate.bind(this);
     }
     onClickHandler = (e) => {
+        // console.log(e.target, e.currentTarget)
         const hiddenElement = e.currentTarget.nextSibling;
         hiddenElement.className.indexOf("collapse show") > -1 ? hiddenElement.classList.remove("show") : hiddenElement.classList.add("show");
     };
     
     handleStatus = (event) =>  {
-        
-        var pusher = new Pusher('891c7f6c06b720face3c', {cluster: 'ap2'});
-        var channel = pusher.subscribe('my-channel');
-        channel.bind('my-event', function(data) {
-            alert(JSON.stringify(data));
-        });
-        
         this.setState({
             status: event.target.value
         });
@@ -67,7 +60,6 @@ class Task extends Component {
     
     handleTaskUpdate = (event) =>  {
         event.preventDefault();
-        console.log(event.target.name)
         const data = {
             id: event.target.name, 
             description: this.state.description, 
@@ -82,15 +74,13 @@ class Task extends Component {
             console.log(res.data);
         })       
         .catch((err) => {
-            console.log(err.response);
-            
+            console.log(err.response);            
         });
     }
-
+    
     render() {
         const { task } = this.props;
         return (
-
             <tbody>
                 <tr className="tablerow" onClick={this.onClickHandler}>
                         <td style={{ paddingLeft: "10px",  paddingTop: "10px"  }}>{task.assignee}</td>
@@ -104,8 +94,6 @@ class Task extends Component {
                                     name={task.id}
                                     onChange={this.handleStatus}
                                     value={this.state.status}
-                                    // title={task.status}                
-                                    // defaultValue={task.status}
                                     >
                                         <option>Assigned</option>
                                         <option>In Progress</option>
@@ -120,22 +108,9 @@ class Task extends Component {
                             }
                         </td>
                 </tr>
-                <tr
-                className="collapse"
-                style={{
-                    justifyContent: "space-between",
-                    background: "#00bfff",
-                    borderBottom: "1px solid rgb(225,225,225)",
-                    borderLeft: "1px solid rgb(225,225,225)",
-                    borderRight: "1px solid rgb(225,225,225)",
-                    borderTopLeftRadius: "10px",
-                    borderTopRightRadius: "10px",
-                    borderBottomLeftRadius: "10px",
-                    borderBottomRightRadius: "10px",
-                    }}
-                >
-                    <td>
-                        <div className="card">
+                <tr className="collapse">
+                    <td colSpan="3" className="collapserow">
+                        <div className="card w-100">
                             <Container>
                                 <h4>Assignor: {task.creator}</h4>
                                 <Form>
@@ -143,39 +118,53 @@ class Task extends Component {
                                         <Col md>
                                             <Form.Group>
                                             <Form.Label>Description</Form.Label>
-                                            <Form.Control 
+                                            {JSON.parse(localStorage.getItem("user")).id !== task.creator? 
+                                                <h4>{this.state.description}</h4>
+                                            :
+                                                <Form.Control 
                                                 type = "text" 
                                                 name = "description"
                                                 onChange = {this.handleDescription}
                                                 value = {this.state.description}
-                                            />
+                                                />
+                                            }
                                             </Form.Group>
                                         </Col>
                                         <Col md>
                                             <Form.Group>
                                             <Form.Label>Due Date</Form.Label>
-                                            <Form.Control 
+                                            
+                                            {JSON.parse(localStorage.getItem("user")).id !== task.creator? 
+                                                <h4>{this.state.due_date}</h4>
+                                            :
+                                                <Form.Control 
                                                 type = "date"
                                                 name = "date"
                                                 onChange = {this.handleDuedate}
                                                 value = {this.state.due_date}
-                                            />
+                                                />
+                                            }
                                             </Form.Group>
                                         </Col>
                                         <Col md>
-                                            <Button
-                                                onClick = {this.handleTaskUpdate} 
-                                                variant = "Secondary" 
-                                                type = "submit"
-                                                name = {task.id}
-                                                style = {{color: "white",background: "blue", marginTop: "32px"}}
-                                                >
-                                                Update Task
-                                            </Button>
+                                            {JSON.parse(localStorage.getItem("user")).id !== task.creator?
+                                                <div></div>
+                                            :
+                                                <Button
+                                                    onClick = {this.handleTaskUpdate}
+                                                    // id = "myBtn"
+                                                    variant = "Secondary" 
+                                                    type = "submit"
+                                                    name = {task.id}
+                                                    style = {{color: "white",background: "blue", marginTop: "32px"}}
+                                                    >
+                                                    Update Task
+                                                </Button>
+                                            }
                                         </Col>                                   
                                     </Row>
                                 </Form>
-                            </Container>                            
+                            </Container>
                         </div>
                     </td>
                 </tr>
@@ -184,3 +173,4 @@ class Task extends Component {
     }
 }
 export default Task;
+//modal

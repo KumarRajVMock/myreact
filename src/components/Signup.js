@@ -1,13 +1,11 @@
-    import React, { Component } from 'react'
-    import axios from "axios";
-    import { Redirect } from "react-router-dom";
+import React, { Component } from 'react'
+import axios from "axios";
 
-    const api = axios.create({
+const api = axios.create({
         baseURL: 'http://localhost:8000/api/'
     })
-
-    class Signup extends Component {
-
+    
+class Signup extends Component {
     constructor() {
         super()
         this.state = {
@@ -16,6 +14,8 @@
             email: '',
             password: '',
             status: '',
+            errorResp: '',
+            er: false
         }
         this.handleEmail = this.handleEmail.bind(this);
         this.handleFname = this.handleFname.bind(this);
@@ -50,7 +50,8 @@
     
     handleSubmit = (event) => {
         event.preventDefault();
-        
+        document.getElementById("myBtn").disabled = true;
+
         const newUser = {
             name: this.state.first_name + ' ' + this.state.last_name,
             email: this.state.email,
@@ -59,21 +60,36 @@
         
         api.post('/signup', newUser)
         .then( res => {
-            console.log(res.data);
             this.setState({status: "done"})
-            // <div className="alert alert-success" role="alert">
-            //     Verify your Email!
-            // </div>
-            // return <Redirect to= {'/login'} />;
+            // document.getElementById("myBtn").disabled = false;
         })
         .catch(err => {
             console.log(err)
+            this.setState({
+                er: true
+            })
+            document.getElementById("myBtn").disabled = false;
+            if (err.response.status === 403) {
+                this.setState({
+                    errorResp:"Email already exists!",
+                });
+            }
+            
         })
     };
     
     render() {
         if(this.state.status === 'done')
-            return <Redirect to= {'/login'} />;
+        {
+            return (
+                <div>
+                    <div className="alert alert-success" role="alert" style={{display:"inline-block", textAlign:"center", marginTop:"50px"}}>
+                        Verify your Email!
+                    </div>
+                </div>
+                
+            )
+        }
         return (
             <div className="bg-light">
                 <div className="container">
@@ -84,7 +100,7 @@
                                     Signup!
                                 </h1>
                                 <div className="form-group">
-                                    <label htmlFor="name">First name</label>
+                                    <label>First name</label>
                                     <input
                                         type="text"
                                         className="form-control"
@@ -95,18 +111,18 @@
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label htmlFor="name">Last name</label>
+                                    <label>Last name</label>
                                     <input
                                         type="text"
                                         className="form-control"
                                         name="last_name"
-                                        placeholder="Enter your lastname name"
+                                        placeholder="Enter your last name"
                                         value={this.state.last_name}
                                         onChange={this.handleLname}
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label htmlFor="email">Email address</label>
+                                    <label>Email address</label>
                                     <input
                                         type="email"
                                         className="form-control"
@@ -117,7 +133,7 @@
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label htmlFor="password">Password</label>
+                                    <label>Password</label>
                                     <input
                                         type="password"
                                         className="form-control"
@@ -129,6 +145,7 @@
                                 </div>
                                 <button
                                     type="submit"
+                                    id = "myBtn"
                                     className="btn btn-lg btn-primary btn-block"
                                 >
                                     Register!
@@ -137,9 +154,14 @@
                         </div>
                     </div>
                 </div>
+                {this.state.er?
+                    <div className="errorResp">{this.state.errorResp}</div>
+                :
+                    <div></div>
+                }
             </div>
         )
     }
 }
 
-    export default Signup;
+export default Signup;

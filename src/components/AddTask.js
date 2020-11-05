@@ -52,7 +52,7 @@ class AddTask extends Component {
     
     handleSubmit = (event) => {       
         event.preventDefault();
-        
+        document.getElementById("myBtn").disabled = true;
         const newTask = {
             title: this.state.title,
             assignee: this.state.assignee,
@@ -66,11 +66,12 @@ class AddTask extends Component {
             },
         })
         .then((res) => {
-            console.log(res.data);
             this.props.createTask(res.data.task);
+            document.getElementById("myBtn").disabled = false;
         })        
         .catch((err) => {
             console.log(err.response);
+            document.getElementById("myBtn").disabled = false;
         });
     };
     
@@ -78,7 +79,7 @@ class AddTask extends Component {
         const is_admin = (
             <Row>
                 <Col md>
-                    <Form.Group controlId = "formEmail">
+                    <Form.Group>
                     <Form.Label>Assignee</Form.Label>
                     <Form.Control 
                         type = "text"
@@ -160,6 +161,7 @@ class AddTask extends Component {
                             </Col>
                             <Col md>
                                 <Button
+                                    id = 'myBtn'
                                     onClick = {this.handleSubmit} 
                                     variant = "Secondary" 
                                     type = "submit" 
@@ -178,5 +180,3 @@ class AddTask extends Component {
 }
 
 export default connect(null, { createTask })(AddTask);
-
-// export default AddTask;

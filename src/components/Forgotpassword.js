@@ -10,7 +10,7 @@ class Forgotpassword extends Component {
         super()
         this.state = {
             email: '',
-            message: '',
+            status: '',
         }    
     }
     handleEmail = (event) => {
@@ -18,16 +18,15 @@ class Forgotpassword extends Component {
             email: event.target.value 
         });    
     }
-    
     handleSubmit = (event) => {       
         event.preventDefault();
+        document.getElementById("myBtn").disabled = true;
         api.post('/forgotpassword',{email: this.state.email,})
-        .then((res) => {
-        
-            console.log(res.data);
+        .then((res) => {        
             this.setState({
-                message: "Check your mailbox!"
+                status: "done"
             });
+            document.getElementById("myBtn").disabled = false;
         })
         .catch((err) => {
             console.log(err)
@@ -35,6 +34,16 @@ class Forgotpassword extends Component {
     };
     
     render() {
+        if(this.state.status === 'done')
+        {
+            return (
+                <div>
+                    <div className="alert alert-success" role="alert" style={{display:"inline-block", textAlign:"center", marginTop:"50px"}}>
+                        Check your Mail!
+                    </div>
+                </div>
+            )
+        }
         return (
             <div className="container bg-light">
                 <div className="row">
@@ -54,6 +63,7 @@ class Forgotpassword extends Component {
                                 />
                             </div>
                             <button
+                                id = "myBtn"
                                 type="submit"
                                 className="btn btn-lg btn-primary btn-block"
                             >

@@ -1,14 +1,12 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { Component } from "react";
 import { connect } from 'react-redux'
 import axios from "axios";
-import {Toast} from 'react-bootstrap';
-import { getTasks } from "../redux/actions";
-
+import 'bootstrap/dist/css/bootstrap.min.css';
+import {Toast, Card} from 'react-bootstrap';
+import { getTasks, getNotes, deleteNote } from "../redux/actions";
 import Highcharts from 'highcharts';
 import PieChart from 'highcharts-react-official';
 import HighchartsReact from "highcharts-react-official";
-import Pusher from 'pusher-js';
 
 const api = axios.create({
     baseURL: 'http://localhost:8000/api/'
@@ -18,39 +16,28 @@ class Dashboard extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            cur_user: '',
-            toast: false,
-            toastHead: '',
-            toastBody: '',
+            toast: [],
         }
+        this.deleteNotification = this.deleteNotification.bind(this);
     }
-    
-    componentDidMount() {
-        // Pusher.logToConsole = true;
-        var pusher = new Pusher('891c7f6c06b720face3c', {cluster: 'ap2'} );        
-        var channel = pusher.subscribe("my-channel");
-        
-        channel.bind("updateStatus", (data) => {
-            if (data.assignee === JSON.parse(localStorage.getItem("user")).id)
-            {
-                this.setState({ toast: true, toastBody: data.message, toastHead: data.messageHead });
-            }
-            console.log(data.assignee, this.state.toastBody, this.state.toastHead, this.state.toast)
-        });
-        
-        api.get('/profile',{
+    deleteNotification = (id) => {
+        api.delete(`/deletenotification/${id}`, {
             headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },})
-        .then(res => {
-            this.setState({
-                cur_user: res.data.user
-            })
-        })
-        .catch(err => {
-            console.log(err)
-        })
-        
+            }
+        })        
+        .then((res) => {
+            console.log(res.data);
+            this.props.deleteNote(id)
+            this.props.getNotes(res.data.notifications)
+            
+        })       
+        .catch((err) => {
+            console.log(err.response);
+        });
+    };
+    
+    componentDidMount() {
         api.get('/viewtask',{
             headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -62,47 +49,58 @@ class Dashboard extends Component {
         .catch(err => {
             console.log(err)
         })
+        
+        api.get('/notification',{
+            headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        })
+        .then(res => {
+            this.setState({
+                toast: res.data.notifications,
+            })
+            this.props.getNotes(res.data.notifications)
+        })
+        .catch(err => {
+            console.log(err)
+        })
     }
     
     render() {
         return (
             <div className="container">
-                <div className="row">
+                <div className="row" style={{marginTop:"10px", marginBottom:"10px"}}>
                     <div className="col-1">
                     </div>
                     <div className="col-5">
-                        {/* <h4>My Performance</h4> */}
-                        <div className="card">
+                        <Card className="h-100">
                             <div className="card-body">
                                 <Performance tasks={this.props.tasks} />
                             </div>
-                        </div>
+                        </Card>
                     </div>
                     <div className="col-1">
                     </div>
                     <div className="col-5">
-                        <h4>Notifications</h4>
-                        <div className="card">
+                        <Card className="h-100">
                             <div className="card-body">
                                 <Notifications 
-                                    toastBody={this.state.toastBody}
-                                    toastHead={this.state.toastHead}
-                                    toast={this.state.toast}
+                                notes={this.props.notes} 
+                                deleteNotification={this.deleteNotification}
                                 />
                             </div>
-                        </div>
+                        </Card>
                     </div>
                 </div>
                 <div className="row">
                     <div className="col-1">
                     </div>
                     <div className="col-11">
-                        {/* <h4>My Tasks Overview</h4> */}
-                        <div className="card">
+                        <Card>
                             <div className="card-body">
                                 <Overview tasks={this.props.tasks} />
                             </div>
-                        </div>
+                        </Card>
                     </div>
                 </div>
             </div>
@@ -113,7 +111,7 @@ class Dashboard extends Component {
 function Performance(props) {
     const tasks = props.tasks.tasks;
     const user  = JSON.parse(localStorage.getItem("user"));
-    let countComp = 0, countAss = 0, countProg = 0;
+    let countComp = 0, countAss = 0, countProg = 0,countTotal = 0;
 
     for(let i = 0; i < tasks.length; i++)
     {
@@ -128,7 +126,7 @@ function Performance(props) {
         }
         
     }
-    // console.log(countAss, countComp, countProg)
+    countTotal = countAss + countComp + countProg;
     const options = {
         chart: {
             type: "pie",
@@ -137,8 +135,7 @@ function Performance(props) {
             text: 'My Performance',
             style: {
                 fontSize: 25,
-            }
-            
+            }            
         },
         series: [
             {
@@ -149,10 +146,20 @@ function Performance(props) {
                 ],
             }
         ]
-    } 
+    }
     return (
         <div>
-            <PieChart highcharts={Highcharts} options={options} />
+            {countTotal 
+            ? 
+                <PieChart highcharts={Highcharts} options={options} /> 
+            : 
+                <div>
+                    <h3 style={{textAlign:"center"}}>
+                        My Performance
+                    </h3>
+                    <h4 style={{textAlign:"center", marginTop:"50px"}}>No tasks assigned!</h4>
+                </div>
+            }
         </div>
     )
 }
@@ -160,28 +167,42 @@ function Performance(props) {
 function Notifications(props){
     return(
         <div>
-            <Toast>
-                <Toast.Header>
-                    <strong className="mr-auto">props.toastHead</strong>
-                </Toast.Header>
-                <Toast.Body>props.toastBody</Toast.Body>
-            </Toast>
+            <h3 style={{textAlign:"center",}}>Notifications</h3>
+            {props.notes.notes.length? 
+                <div></div> 
+            : 
+                <h4 style={{textAlign:"center", marginTop:"50px"}}>No New Notifications!</h4>
+            }
+            {props.notes.notes.map((note) => {
+                return (
+                    <Toast
+                    key={note.id}
+                    onClose={props.deleteNotification.bind(this, note.id)}
+                    >
+                        <Toast.Header>
+                            <strong className="mr-auto">{note.messageHead}</strong>
+                        </Toast.Header>
+                        <Toast.Body>{note.message}</Toast.Body>
+                    </Toast>
+                )
+            })}
         </div>
-    )
-    
+    )    
 }
 
 function Overview(props) {
     const user  = JSON.parse(localStorage.getItem("user"));
     const tasks = props.tasks.tasks;
     let mytasks = [];
-    for(let i = 0; i < tasks.length; i++){
-        if(tasks[i].assignee === user.email)        {
+    for(let i = 0; i < tasks.length; i++)
+    {
+        if(tasks[i].assignee === user.email)
+        {
             mytasks.push(tasks[i]);
-        }        
+        }
     }
     let dueDate = [];    
-    let countComp = [0], countAss = [0], countProg = [0];
+    let countComp = [0], countAss = [0], countProg = [0],countTotal = 0;
     if(mytasks.length > 0)
     {
         let j = 0;
@@ -219,7 +240,7 @@ function Overview(props) {
             }
         }
     }
-    console.log(countProg,countAss,countComp, dueDate)
+    countTotal = mytasks.length;
     const options = {
         chart: {
             type: "column",
@@ -228,8 +249,7 @@ function Overview(props) {
             text: 'My Tasks Overview',
             style: {
                 fontSize: 25
-            }
-            
+            }            
         },
         xAxis: {
             categories: dueDate,
@@ -238,8 +258,7 @@ function Overview(props) {
             allowDecimals: false,
             min: 0,
             title: {
-                text: 'Number of Tasks'
-                
+                text: 'Number of Tasks'                
             }
         },
         series: [
@@ -257,23 +276,32 @@ function Overview(props) {
                 data: countComp,
                 stack: 'completed',
                 name: 'Completed'
-            },
-            
-            
+            }
         ]
     } 
     
     return (
         <div>
-            <HighchartsReact highcharts={Highcharts} options={options} />
+            {countTotal 
+            ? 
+                <HighchartsReact highcharts={Highcharts} options={options} /> 
+            : 
+                <div>
+                    <h3 style={{textAlign:"center"}}>
+                        My Tasks Overview
+                    </h3>
+                    <h4 style={{textAlign:"center", marginTop:"50px"}}>No tasks assigned!</h4>
+                </div>
+            }
         </div>
     )
 }
 
 const mapStatetoProps = (state, ownProps) => {
     return {
-        tasks: state.tasks
+        tasks: state.tasks,
+        notes: state.notes,
     }
 };
 
-export default connect(mapStatetoProps, { getTasks })(Dashboard);
+export default connect(mapStatetoProps, { getTasks, getNotes, deleteNote })(Dashboard);

@@ -1,12 +1,11 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux'
 import axios from "axios";
-// import store from "../redux/store"
 import AddUser from "./AddUser";
 import User from "./User";
 import "./Admin.css"
 import { getUsers, deleteUser } from "../redux/actions";
-import {Table } from 'react-bootstrap';
+import { Table, Container } from 'react-bootstrap';
 
 const api = axios.create({
     baseURL: 'http://localhost:8000/api/'
@@ -18,7 +17,6 @@ class Admin extends Component {
         this.state = {
             cur_user: [],
             errorResp: '',
-            // all_user: [],
         }
     }
     
@@ -42,9 +40,6 @@ class Admin extends Component {
             }
         })
         .then(res => {
-            // this.setState({
-            //     all_user: res.data.users
-            // })
             // store.dispatch(getUsers(res.data))
             this.props.getUsers(res.data)
         })
@@ -54,32 +49,34 @@ class Admin extends Component {
     }
     
     render() {
-        console.log(this.props.users)
         return (
             <div>
                 <AddUser />
                 <Users users={this.props.users} />
             </div>
         );
-    }
-    
+    }    
 }
+
 function Users(props) {
     return (
-        <div className="container tablecontainer">
-            <div className="tablehead">
-            <h3 style={{ paddingLeft: "15px" }}>Name</h3>
-            <h3>Email</h3>
-            <h3>Role</h3>
-            <h3 style={{ paddingRight: "15px" }}>Delete</h3>
-            </div>
-            <Table style={{widht: "100%"}}>
-                {props.users.users.map((user) => {
-                    return <User key={user.id} user={user} />;
-                })}
+        <Container>
+            <Table className="container tablecontainer" style={{widht: "100%"}}>
+                <thead className="tablehead">
+                    <tr>
+                        <th style={{ paddingLeft: "15px" }}>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th style={{ paddingLeft: "15px" }}>Delete</th>
+                    </tr>                    
+                </thead>
+                <tbody>
+                    {props.users.users.map((user) => {
+                        return <User key={user.id} user={user} />;
+                    })}
+                </tbody>
             </Table>
-            
-        </div>
+        </Container>
     );
 }
 

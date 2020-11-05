@@ -10,6 +10,7 @@ const api = axios.create({
 
 class User extends Component {
     state = {};
+    
     handleDelete = (id) =>  {
         api.delete(`/deleteuser/${id}`, {
             headers: {
@@ -34,24 +35,20 @@ class User extends Component {
             }
         });
     }
+    
     render() {
         const { user } = this.props;
-        // const user = this.props.user;
         return (
-            <tbody>
-                <tr className="tablerow">
-                    <td style={{ paddingLeft: "10px", paddingTop: "10px", }}>{user.name}</td>
-                    <td style={{ paddingTop: "10px"  }}>{user.email}</td>
-                    <td style={{ paddingTop: "10px", }}>{user.role}</td>
-                    <td style={{ paddingTop: "10px", }}>
-                    <Button variant="danger" onClick={this.handleDelete.bind(this, user.id)}>
-                        Delete
-                    </Button>
-                    </td>
-                    
-                </tr>
-            </tbody>
-        
+            <tr className="tablerow">
+                <td style={{ paddingLeft: "10px", paddingTop: "10px", }}>{user.name}</td>
+                <td style={{ paddingTop: "10px"  }}>{user.email}</td>
+                <td style={{ paddingTop: "10px", }}>{user.role}</td>
+                <td style={{ paddingTop: "10px", }}>
+                <Button variant="danger" onClick={this.handleDelete.bind(this, user.id)}>
+                    Delete
+                </Button>
+                </td>
+            </tr>
         );
     }
 }

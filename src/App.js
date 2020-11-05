@@ -29,32 +29,32 @@ class App extends Component {
             <Switch>
               <ProtectedRoute
                 isAllowed={localStorage.getItem("token")}
-                exact path="/self" 
+                path="/self" 
                 component={Dashboard}
               />
               <ProtectedRoute
                 isAllowed={localStorage.getItem("token")}
-                exact path="/admin" 
+                path="/admin" 
                 component={Admin}
               />
               <ProtectedRoute
                 isAllowed={localStorage.getItem("token")}
-                exact path="/normal" 
+                path="/normal" 
                 component={Normal}
               />
               <ProtectedRoute
                 isAllowed={localStorage.getItem("token")}
-                exact path="/search" 
+                path="/search" 
                 component={Filter}
               />
               <ProtectedRoute
                 isAllowed={localStorage.getItem("token")}
-                exact path="/viewtask" 
+                path="/viewtask" 
                 component={ViewTask}
               />
               <ProtectedRoute
                 isAllowed={localStorage.getItem("token")}
-                exact path="/searchtask" 
+                path="/searchtask" 
                 component={SearchTask}
               />
               <Route exact path="/" component={Welcome} />

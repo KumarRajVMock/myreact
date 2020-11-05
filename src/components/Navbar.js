@@ -1,13 +1,54 @@
 import React, { Component } from 'react'
 import { Link, withRouter } from 'react-router-dom'
 import { HiUserCircle } from "react-icons/hi";
+import Pusher from 'pusher-js';
+import axios from "axios";
+
+const api = axios.create({
+    baseURL: 'http://localhost:8000/api/'
+})
 
 class Navbar extends Component {
+    state = {
+        cur_user: '',
+    }
+    
     logOut(e) {
         e.preventDefault()
-        // localStorage.removeItem("token", "role")
         localStorage.clear();
         this.props.history.push(`/`)
+    }
+    
+    componentDidMount() {
+        // Pusher.logToConsole = true;
+        var pusher = new Pusher('891c7f6c06b720face3c', {cluster: 'ap2'} );        
+        var channel = pusher.subscribe("my-channel");
+        
+        channel.bind("updateStatus", (data) => {
+            alert(JSON.stringify(data.messageHead));
+        });
+        channel.bind("updateTask", (data) => {
+            alert(JSON.stringify(data.messageHead));
+        });
+        channel.bind("taskAdded", (data) => {
+            alert(JSON.stringify(data.messageHead));
+        });
+        
+        if(localStorage.getItem("token"))
+        {
+            api.get('/profile',{
+                headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },})
+            .then(res => {
+                this.setState({
+                    cur_user: res.data.user
+                })
+            })
+            .catch(err => {
+                console.log(err)
+            })
+        }
     }
     
     render() {
@@ -34,44 +75,28 @@ class Navbar extends Component {
         const aftertop = (
             <ul className="navbar-nav">
                 <li className="nav-item">
-                    <Link to="/self" className="nav-link">
-                        Dashboard
-                    </Link>
+                    <a className="nav-link" href="/self">Dashboard</a>
                 </li>
                 <li className="nav-item">
-                {(localStorage.getItem("role") === "Admin") ?
-                    (
-                        <Link to="/admin" className="nav-link">
-                            Users
-                        </Link>
-                    )
-                    :
-                    (
-                        <Link to="/normal" className="nav-link">
-                            Users
-                        </Link>
-                    )
+                {(this.state.cur_user.role === "Admin") ?
+                    <a className="nav-link" href="/admin">Users</a>
+                :
+                    <a className="nav-link" href="/normal">Users</a>
                 }
                 </li>
                 <li className="nav-item">
-                    <Link to="/viewtask" className="nav-link">
-                        Tasks
-                    </Link>
+                    <a className="nav-link" href="/viewtask">Tasks</a>
                 </li>
                 <li className="nav-item">
-                    <Link to="/search" className="nav-link">
-                        Search Users
-                    </Link>
+                    <a className="nav-link" href="/search">Search Users</a>
                 </li>
                 <li className="nav-item">
-                    <Link to="/searchtask" className="nav-link">
-                        Search Tasks
-                    </Link>
+                    <a className="nav-link" href="/searchtask">Search Tasks</a>
                 </li>
                 <li className="nav-item">
-                <a href="#a" onClick={this.logOut.bind(this)} className="nav-link">
-                    Logout
-                </a>
+                    <a className="nav-link" href="/" onClick={this.logOut.bind(this)}>
+                        Logout
+                    </a>
                 </li>
             </ul>
         )
@@ -81,9 +106,9 @@ class Navbar extends Component {
             className="col sidenav bg-dark"
             style={{top: "3.4rem", height: "calc(200vh - 3.4rem)", position:"absolute",}}
             >
-                <HiUserCircle size="7em" color="silver" />
-                <h4 className= "text-white">
-                    {JSON.parse(localStorage.getItem("user")) ? JSON.parse(localStorage.getItem("user")).name: ""}
+                <HiUserCircle size="7em" color="silver" style={{marginLeft:"10px"}}/>
+                <h4 className= "text-white" style={{textAlign:"center"}}>
+                    {this.state.cur_user.name}
                 </h4>
             </div>
         )
@@ -91,40 +116,21 @@ class Navbar extends Component {
         const beforeside = (
             <div></div>
         )
+        
         return (
             <div>
                 <nav className="navbar navbar-expand-lg navbar-dark bg-dark rounded">
-                    <a className="navbar-brand" href="#aa">Lumen React App</a>
-                    <button
-                    className="navbar-toggler"
-                    type="button"
-                    data-toggle="collapse"
-                    data-target="#navbarsExample10"
-                    aria-controls="navbarsExample10"
-                    aria-expanded="false"
-                    aria-label="Toggle navigation"
-                    >
-                        <span className="navbar-toggler-icon" />
-                    </button>
-                    <div
-                    className="collapse navbar-collapse justify-content"
-                    id="navbarsExample10"
-                    >
-                        <ul className="navbar-nav">
-                            <li className="nav-item">
-                                <Link to="/" className="nav-link">
-                                    Home
-                                </Link>
-                            </li>                        
-                        </ul>
-                    {localStorage.token ? aftertop : beforetop}
+                    <Link to="/" className="navbar-brand">
+                        Lumen React App
+                    </Link>
+                    <div className="justify-content">
+                        {localStorage.token ? aftertop : beforetop}
                     </div>
                 </nav>
-                <div>
-                {localStorage.token ? afterside : beforeside}
+                <div className="justify-content">
+                    {localStorage.token ? afterside : beforeside}
                 </div>
-            </div>
-            
+            </div>            
         )
     }
 }

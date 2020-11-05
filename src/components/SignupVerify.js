@@ -19,7 +19,7 @@ class SignupVerify extends Component {
         api.post(`/verify/${this.props.match.params.token}`)
         .then(res => {
             this.setState({is_token: true,});
-            })
+        })
         .catch((err) => {
             if(err.response.status === 401) {
                 this.setState({errResp: "Please try again with the correct token.",});
@@ -28,8 +28,8 @@ class SignupVerify extends Component {
                 this.setState({errResp: "Already Verified",});
             }
         });
-        console.log(this.state.is_token)
     }
+    
     render() {
         if (this.state.is_token) 
             return <Redirect to= {'/login'} />;
@@ -37,7 +37,7 @@ class SignupVerify extends Component {
             <div style={{ textAlign: "center", padding: "30px" }}>
                 {this.state.errorResp}
             </div>
-            );
+        );
     }
 }
 

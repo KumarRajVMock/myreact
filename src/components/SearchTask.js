@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Button, Col, Container, Form, Row,Card } from 'react-bootstrap';
+import {Button, Col, Container, Form, Row, Table, Card } from 'react-bootstrap';
 import axios from 'axios';
 import Pagination from 'react-js-pagination';
 
@@ -29,7 +29,6 @@ class SearchTask extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);         
         this.handlepages = this.handlepages.bind(this);         
     }
-    
     handleTitle = (event) => {
         this.setState({
             title: event.target.value 
@@ -52,7 +51,7 @@ class SearchTask extends Component {
     };
     handleSubmit = (event) =>{       
         event.preventDefault();
-        
+        document.getElementById("myBtn").disabled = true;
         let data = {
             title: this.state.title === "" ? undefined : this.state.title,
             assignee: this.state.assignee === "" ? undefined : this.state.assignee,
@@ -71,12 +70,15 @@ class SearchTask extends Component {
                 per_page: res.data.per_page, 
                 total: res.data.total,
             })
+            console.log(res.data.data)
+            document.getElementById("myBtn").disabled = false;
         })        
         .catch((err) => {
             console.log(err.response);
+            document.getElementById("myBtn").disabled = false;
         });
     };
-
+    
     handlepages = (pageNumber) => {
         let data = {
             title: this.state.title === "" ? undefined : this.state.title,
@@ -104,7 +106,6 @@ class SearchTask extends Component {
     
     render() {
         return (
-        <div>
             <Container>
                 <Card style={{borderWidth:"0.5rem", marginTop:"15px"}}>
                     <Container>
@@ -158,7 +159,8 @@ class SearchTask extends Component {
                                 </Col>
                                 <Col md>
                                     <Button 
-                                        onClick = {this.handleSubmit} 
+                                        onClick = {this.handleSubmit}
+                                        id = "myBtn"
                                         variant = "Secondary" 
                                         type = "submit" 
                                         style = {{color: "white", background: "blue", marginTop: "32px"}}
@@ -170,42 +172,31 @@ class SearchTask extends Component {
                         </Form>
                     </Container>
                 </Card>
-            </Container>         
-            <div className="container tablecontainer">
-                <div className="tablehead">
-                    <h3 style={{ paddingLeft: "15px" }}>Title</h3>
-                    <h3>Assignee</h3>
-                    <h3>Assignor</h3>
-                    <h3 style={{ paddingRight: "15px" }}>Due Date</h3>
-                </div>
-                {this.state.search_val.map((task) => {
-                    return (
-                        <div
-                            key={task.id}
-                            style={{
-                            padding: "5px",
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "right",
-                            background: "silver",
-                            borderBottom: "1px solid rgb(225,225,225)",
-                            borderLeft: "1px solid rgb(225,225,225)",
-                            borderRight: "1px solid rgb(225,225,225)",
-                            borderTopLeftRadius: "10px",
-                            borderTopRightRadius: "10px",
-                            borderBottomLeftRadius: "10px",
-                            borderBottomRightRadius: "10px",
-                            }}
-                        >
-                            <h5 style={{ paddingLeft: "10px", paddingTop: "10px", }}>{task.title}</h5>
-                            <h5 style={{ paddingTop: "10px"  }}>{task.assignee}</h5>
-                            <h5 style={{ paddingTop: "10px", }}>{task.creator}</h5>
-                            <h5 style={{ paddingTop: "10px", }}>{task.due_date}</h5>
-                        </div>
-                    )
-                })}
+                
+                <Table className="container tablecontainer" style={{widht: "100%"}}>
+                    <thead className="tablehead">
+                        <tr>
+                            <th style={{ paddingLeft: "15px" }}>Title</th>
+                            <th>Assignee</th>
+                            <th>Assignor</th>
+                            <th style={{ paddingLeft: "15px" }}>Due Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {this.state.search_val.map((task) => {
+                            return (
+                                <tr key={task.id} className="tablerow">
+                                    <td style={{ paddingLeft: "10px", paddingTop: "10px", }}>{task.title}</td>
+                                    <td style={{ paddingTop: "10px"  }}>{task.assignee}</td>
+                                    <td style={{ paddingTop: "10px", }}>{task.creator}</td>
+                                    <td style={{ paddingTop: "10px", }}>{task.due_date}</td>
+                                </tr>
+                            )
+                        })}
+                    </tbody>
+                </Table>
                 <div className="mt-3">
-                    <Pagination 
+                    <Pagination
                         activePage={this.state.current_page}
                         totalItemsCount={this.state.total}
                         itemsCountPerPage={this.state.per_page}
@@ -216,8 +207,7 @@ class SearchTask extends Component {
                         lastPageText="Last"
                     />
                 </div>
-            </div>
-        </div>
+            </Container>
         );
     }
 }

@@ -1,6 +1,5 @@
 const initialState = {
     isLogged: localStorage.getItem("token") ? true : false,
-    
     loggedUser: localStorage.getItem("user")? JSON.parse(localStorage.getItem("user")): {},
 };
 

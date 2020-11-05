@@ -4,8 +4,7 @@ import axios from "axios";
 import AddTask from "./AddTask";
 import Task from "./Task";
 import { getTasks } from "../redux/actions";
-import {Table } from 'react-bootstrap';
-
+import {Table, Container } from 'react-bootstrap';
 
 const api = axios.create({
     baseURL: 'http://localhost:8000/api/'
@@ -34,7 +33,6 @@ class ViewTask extends Component {
     }
     
     render() {
-        console.log(this.props.tasks)
         return (
             <div>
                 <AddTask />
@@ -46,18 +44,20 @@ class ViewTask extends Component {
 }
 function Tasks(props) {
     return (
-        <div className="container tablecontainer">
-            <div className="tablehead">
-            <h3 style={{ paddingLeft: "15px" }}>Assignee</h3>
-            <h3>Title</h3>
-            <h3 style={{ paddingRight: "15px" }}>Status</h3>
-            </div>
-            <Table style={{widht: "100%"}}>
+        <Container>
+            <Table className="container tablecontainer" style={{widht: "100%"}}>
+                <thead className="tablehead">
+                    <tr>
+                        <th style={{ paddingLeft: "15px" }}>Assignee</th>
+                        <th>Title</th>
+                        <th style={{ paddingLeft: "15px" }}>Status</th>
+                    </tr>
+                </thead>
                 {props.tasks.tasks.map((task) => {
-                return <Task key={task.id} task={task} />;
+                    return <Task key={task.id} task={task} />;
                 })}
             </Table>
-        </div>
+        </Container>
     );
 }
 

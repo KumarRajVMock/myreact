@@ -10,7 +10,6 @@ const taskReducer = (state = initialState, action) => {
                 tasks: [...action.payload.tasks],
             };
         }
-        
         case "CREATETASK": {
             return {
                 ...state,

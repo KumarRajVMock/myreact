@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Button, Col, Container, Form, Row , Card} from 'react-bootstrap';
+import {Button, Col, Container, Form, Row , Card, Table} from 'react-bootstrap';
 import axios from 'axios';
-
-import FilterResult from "./FilterResult";
 
 const api = axios.create({
     baseURL: 'http://localhost:8000/api/'
@@ -52,7 +50,7 @@ class Filter extends Component {
     
     handleSubmit(event){       
         event.preventDefault();
-        
+        document.getElementById("myBtn").disabled = true;
         let data = {
             name: this.state.name === "" ? undefined : this.state.name,
             email: this.state.email === "" ? undefined : this.state.email,
@@ -66,10 +64,10 @@ class Filter extends Component {
             },
         })
         .then((res) => {
-            console.log(res.data);
             this.setState({
                 search_val: res.data
             })
+            document.getElementById("myBtn").disabled = false;
         })        
         .catch((err) => {
             console.log(err.response);
@@ -79,8 +77,6 @@ class Filter extends Component {
     render() {
         // this.state = {  search_val: [] };
         return (
-        <div>
-
             <Container>
                 <Card style={{borderWidth:"0.5rem", marginTop:"15px"}}>
                     <Container>
@@ -133,7 +129,8 @@ class Filter extends Component {
                                     </Form.Group>
                                 </Col>
                                 <Col md>
-                                    <Button 
+                                    <Button
+                                        id = "myBtn"
                                         onClick = {this.handleSubmit} 
                                         variant = "Secondary" 
                                         type = "submit" 
@@ -146,20 +143,30 @@ class Filter extends Component {
                         </Form>
                     </Container>
                 </Card>
-            </Container>
             
-            <div className="container tablecontainer">
-                <div className="tablehead">
-                    <h3 style={{ paddingLeft: "15px" }}>Name</h3>
-                    <h3>Email</h3>
-                    <h3>Role</h3>
-                    <h3 style={{ paddingRight: "15px" }}>Created By</h3>
-                </div>
-                {this.state.search_val.map((user) => {
-                    return <FilterResult key={user.id} user={user} />
-                })}
-            </div>
-        </div>
+                <Table className="container tablecontainer" style={{widht: "100%"}}>
+                    <thead className="tablehead">
+                        <tr>
+                            <th style={{ paddingLeft: "15px" }}>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th style={{ paddingLeft: "15px" }}>Created By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {this.state.search_val.map((user) => {
+                        return (
+                            <tr key={user.id} className="tablerow">
+                                <td style={{ paddingLeft: "10px", paddingTop: "10px", }}>{user.name}</td>
+                                <td style={{ paddingTop: "10px"  }}>{user.email}</td>
+                                <td style={{ paddingTop: "10px", }}>{user.role}</td>
+                                <td style={{ paddingTop: "10px", }}>{user.created_by? user.created_by: "Self"}</td>
+                            </tr>
+                        )
+                    })}
+                    </tbody> 
+                </Table>
+            </Container>
         );
     }
 }

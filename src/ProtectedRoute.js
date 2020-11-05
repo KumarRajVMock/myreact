@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Component } from "react";
 import { Redirect, Route } from "react-router-dom";
 import axios from "axios";
 
@@ -6,66 +6,59 @@ const api = axios.create({
         baseURL: 'http://localhost:8000/api/'
         })
 
-// export const ProtectedRoute = ({ isAllowed, ...props }) =>
-// {
-//         return (
-//         isAllowed 
-//         ? (<Route {...props}/> )
-//         : (<Redirect to="/"/>)
-//         )
-// }
-
-class ProtectedRoute extends React.Component {
+class ProtectedRoute extends Component {
         state = {
                 cond: true,
         };
         
-        componentDidMount() 
+        async componentDidMount() 
         {
                 if (localStorage.getItem("user") === null) 
                 {
                         this.setState({ cond: false });
                 } 
-                else 
+                else
                 {
                         const id = JSON.parse(localStorage.getItem("user")).id;
-                        api.get('/profile',{
-                                headers: {
-                                Authorization: `Bearer ${localStorage.getItem("token")}`,
-                                },
-                        })
-                        .then(res => {
-                                if(res.data.user.id === id)
-                                {
-                                console.log("successful");
+                        const res = await api.get('/profile',{
+                                        headers: {
+                                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                                        },
+                                })
+                        if(res.data.user.id === id)
+                        {
                                 this.setState({
                                         cond: true
                                 })
+                                if(window.location.pathname === "/admin" && res.data.user.role === "Normal")
+                                {
+                                        this.setState({
+                                                cond: false
+                                        })
                                 }
-                        })
-                        .catch(err => {
-                                console.log(err)
-                                this.setState({
-                                        cond: false
-                                })
-                                localStorage.clear();
-                        })
+                                if(window.location.pathname === "/normal" && res.data.user.role === "Admin")
+                                {
+                                        this.setState({
+                                                cond: false
+                                        })
+                                }
+                        }
                 }
         }
         render() {
                 const Component = this.props.component;
-                const path = this.props.path;
+                const Path = this.props.path;
                 if(this.state.cond === false)
                 {
                         return <Redirect to={{ pathname: "/" }} />;
                 }
-                return this.props.isAllowed ? (
-                        <Route exact path={path} component={Component} />
-                        // <Component />
-                        ) : (
-                        <Redirect to={{ pathname: "/" }} />
-                );
-                
+                else{
+                        return this.props.isAllowed ? (
+                                <Route exact path={Path} component={Component} />
+                                ) : (
+                                <Redirect to={{ pathname: "/" }} />
+                        );
+                }
         }
 }
 

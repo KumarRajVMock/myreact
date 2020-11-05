@@ -16,13 +16,14 @@ class Login extends Component {
             email: '',
             password: '',
             redirect: '',
+            er: false,
             errorResp: '',
         }
             this.handleEmail = this.handleEmail.bind(this);
             this.handlePassword = this.handlePassword.bind(this);
             this.handleSubmit = this.handleSubmit.bind(this);         
     }
-
+    
     componentDidMount() {
         if (localStorage.getItem("token")) 
         {
@@ -51,15 +52,14 @@ class Login extends Component {
     
     handleSubmit = (event) => {       
         event.preventDefault();
+        document.getElementById("myBtn").disabled = true;
         api.post('/login',{email: this.state.email, password: this.state.password})
         .then((res) => {
             localStorage.setItem("token", res.data.token);
             localStorage.setItem("user", JSON.stringify(res.data.user));
             // Cookies.set("token", res.data.token);
             // console.log(Cookies.get("token"))            
-            this.props.login(res.data.user);
-            console.log(res.data);
-
+            this.props.login(res.data.user);            
             if(res.data.user.role === "Admin"){
                 this.setState({ redirect:"Admin"});
                 localStorage.setItem("role", res.data.user.role);
@@ -68,18 +68,24 @@ class Login extends Component {
                 this.setState({ redirect:"Normal"});
                 localStorage.setItem("role", res.data.user.role);
             }
+            // document.getElementById("myBtn").disabled = false;
         })
         .catch((err) => {
-            if (err.response === 401) {
+            this.setState({
+                er: true
+            })
+            console.log(err.response)
+            if (err.response.status === 401) {
                 this.setState({
                     errorResp: "Please enter a valid username and password",
                 });
             }
-            if (err.response === 403) {
+            if (err.response.status === 403) {
                 this.setState({
-                    errorResp:"Please verify the verification email sent to your email-id",
+                    errorResp:"Please verify the mail sent to your email",
                 });
             }
+            document.getElementById("myBtn").disabled = false;
         });
     };
     
@@ -94,7 +100,6 @@ class Login extends Component {
             return <Redirect to= {'/self'} />;
         }
         return (
-
             <div className="container bg-light">
                 <div className="row">
                     <div className="col-md-6 mt-5 mx-auto">
@@ -128,21 +133,23 @@ class Login extends Component {
                             </div>
                             <button
                                 type="submit"
+                                id = "myBtn"
                                 className="btn btn-lg btn-primary btn-block"
                             >
                                 Sign in
                             </button>
-                            <div className="errResp">
-                                {this.state.errorResp}
-                            </div>
                         </form>
                     </div>
                 </div>
+                {this.state.er?
+                    <div className="errorResp">{this.state.errorResp}</div>
+                :
+                    <div></div>
+                }
             </div>
         )
     }
 }
-
 
 const mapStatetoProps = (state, ownProps) => {
     return {
@@ -151,5 +158,3 @@ const mapStatetoProps = (state, ownProps) => {
 };
 
 export default connect(mapStatetoProps, { login })(Login);
-
-// export default Login
